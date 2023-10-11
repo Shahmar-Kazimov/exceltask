@@ -3,7 +3,7 @@ import * as XLSX from "xlsx"
 function Excel() {
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState("");
-    const [excelData, setExcelData] = useState(null);
+    const [excelData, setExcelData] = useState([]);
     const handleFile = (e: any) => {
         let fileTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
         let selectedFile = e.target.files[0];
@@ -32,8 +32,8 @@ function Excel() {
             const workbook = XLSX.read(excelFile, { type: "buffer" });
             const worksheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[worksheetName];
-            const data = XLSX.utils.sheet_to_json(worksheet);
-            setExcelData(data.slice());
+            var data: never[] = XLSX.utils.sheet_to_json(worksheet);
+            setExcelData(data.sort((a: { id: number }, b: { id: number }) => b.id - a.id));
         }
     }
 
@@ -53,26 +53,16 @@ function Excel() {
                         <table className="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>id
-                                        <input placeholder="ara"></input>
-                                    </th>
-                                    <th>len
-                                        <input placeholder="ara"></input>
-                                    </th>
-                                    <th>wkt
-                                        {Object.keys(excelData).map((key) => (
-                                            <td key={key}></td>
-                                        ))}
-                                        <input placeholder="ara"></input>
-                                    </th>
-                                    <th>status
-                                        <input placeholder="ara"></input>
-
-                                    </th>
+                                    {Object.keys(excelData && Array.isArray(excelData) && excelData.length > 0 ? excelData[0] : []).map((key, index) =>
+                                        <th key={index}>
+                                            {key}
+                                            <input type="text" placeholder="ara" />
+                                        </th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
-                                {excelData.slice().reverse().map((individualExcelData: any, index: any) => (
+                                {excelData.map((individualExcelData: any, index: any) => (
                                     <tr key={index}>
                                         {Object.keys(individualExcelData).map((key) => (
                                             <td key={key}>{individualExcelData[key]}</td>
